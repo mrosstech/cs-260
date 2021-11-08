@@ -11,6 +11,7 @@
 #include <time.h>
 #include "CSVparser.hpp"
 #include <ctime>
+#include <vector>
 
 // References the CSVParser.hpp header file.
 
@@ -91,8 +92,9 @@ Bid getBid() {
  */
 vector<Bid> loadBids(string csvPath) {
 	// Created vector of Bid structs to hold bid data from file.
-
     vector<Bid> bids;
+
+    // Created a temporary data structure tempBid of type Bid to hold data from each row and add to vector
     Bid tempBid;
 
     // initialize the CSV Parser using the given path
@@ -100,13 +102,12 @@ vector<Bid> loadBids(string csvPath) {
 
 	// loop to read rows of a CSV file
 	for (int i = 0; i < file.rowCount(); i++) {
-        // Created a temporary data structure tempBid of type Bid to hold data from each row and add to vector
         tempBid.title = file[i][0];
         tempBid.fund = file[i][8];
         tempBid.amount = strToDouble(file[i][4], '$');
-
+        // DEBUG: cout << "Title: " << tempBid.title << " Fund: " << tempBid.fund << " Amount: " << tempBid.amount << endl;
+        // Push the temporary bid struct onto the bids vector.
         bids.push_back(tempBid);
-
     }
     return bids;
 }
@@ -128,12 +129,11 @@ int main(int argc, char* argv[]) {
         csvPath = "eBid_Monthly_Sales_Dec_2016.csv";
     }
 
-    // FIXME (4): Define a vector to hold all the bids
+    // Defined a vector to hold all the bids
     vector<Bid> myBids;
 
-    // FIXME (7a): Define a timer variable
-    time_t now;
-    time_t later;
+    // Defined a timer variable
+    clock_t runtime;
 
     int choice = 0;
     while (choice != 9) {
@@ -151,15 +151,17 @@ int main(int argc, char* argv[]) {
 
             break;
         case 2:
-            now = time(0);
+            runtime = clock();
+            myBids = loadBids(csvPath);
+            runtime = clock() - runtime;
 
-            loadBids(csvPath);
+            cout << myBids.size() << " bids read" << endl;
+            cout << "time: " << runtime << " milliseconds" << endl;
+            cout << "time: " << runtime*1.0/CLOCKS_PER_SEC << " seconds" << endl;
 
-            later = time(0);
-            cout << "Bids took " << later - now << " seconds to run..." << endl;
             break;
         case 3:
-            // FIXME (6): Loop and display the bids read
+            // Loop and display the bids read
             for (int i = 0; i < myBids.size(); ++i) {
             	displayBid(myBids.at(i));
             }
