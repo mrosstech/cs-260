@@ -32,6 +32,7 @@ struct Bid {
     }
 };
 
+// Needed another structure to hold the data value and the pointer to the next node.
 struct node
 {
     Bid dataVal;
@@ -50,6 +51,7 @@ class LinkedList {
 
 private:
     // Internal structure for list entries, housekeeping variables
+    // We only need the *head and *tail pointer structures to allow us to function.
     node *head;
     node *tail;
 public:
@@ -67,6 +69,7 @@ public:
  * Default constructor
  */
 LinkedList::LinkedList() {
+    // Configure the head and tail with the value of 0 to allow for append / prepend logic.
     this->head = 0;
     this->tail = 0;
 }
@@ -81,28 +84,25 @@ LinkedList::~LinkedList() {
  * Append a new bid to the end of the list
  */
 void LinkedList::Append(Bid bid) {
-    // FIXME: Implement append logic.
     // Assign bid data to temp node.
-    //cout << "Creating temp node..." << endl;
     node *tempNode = new node;
+
     // Assign the bid data to the dataVal struct member.
-    //cout << "Setting bid value to temp node dataVal..." << bid.bidId << endl;
     tempNode->dataVal = bid;
+
     // Since this will be the last object in the list, assign the next node as 0
-    //cout << "Setting next node on tempNode to 0..." << endl;
     tempNode->next = 0;
 
     // Check if this is the first node being added:
     if (this->head == 0) {
-        //cout << "Found the first node in the list.   Setting head and tail..." << endl;
-        // It is the first node so change the head node to point to the incoming Bid.
+        // It is the first node so change the head and tail node to point to the incoming node.
         this->head = tempNode;
         this->tail = tempNode;
     } else {
         // It is not the first node, so change the tail node to point to this one.
-        //cout << "Not the first node in the list.   Setting the tail..." << endl;
         this->tail->next = tempNode;
-        this->tail = this->tail->next;
+        // The new tail is the new tempNode being appended.
+        this->tail = tempNode;
     }
 
 }
@@ -111,13 +111,17 @@ void LinkedList::Append(Bid bid) {
  * Prepend a new bid to the start of the list
  */
 void LinkedList::Prepend(Bid bid) {
-    // FIXME: Add prepend logic
+    // Initialize the temporary node
     node *tempNode = new node;
     tempNode->dataVal = bid;
     tempNode->next = 0;
+
+    // If this is the first node, set the head and tail to the new node.
     if (this->head == 0) {
         this->head = tempNode;
         this->tail = tempNode;
+    // If it is not the first node, point the incoming node to the existing head
+    // and then set the incoming node as the new head.
     } else {
         tempNode->next = this->head;
         this->head = tempNode;
@@ -128,11 +132,15 @@ void LinkedList::Prepend(Bid bid) {
  * Simple output of all bids in the list
  */
 void LinkedList::PrintList() {
-    
+    // Initialize the temporary node.
     node *tempNode = new node;
+    // Set the temporary node to the head.
     tempNode = this->head;
+    // Loop while the current node is not set to 0 (end of list)
     while (tempNode != 0) {
+        // Output the relevant data.
         cout << tempNode->dataVal.title << " | " << tempNode->dataVal.amount << " | " << tempNode->dataVal.fund << endl;
+        // Navigate to the next list node.
         tempNode = tempNode->next;
     }
 }
@@ -143,9 +151,11 @@ void LinkedList::PrintList() {
  * @param bidId The bid id to remove from the list
  */
 void LinkedList::Remove(string bidId) {
-    // FIXME (6): Implement remove logic
+    // Initialize temporary node
     node *tempNode = new node;
+    // Set the temporary node to the head.
     tempNode = this->head;
+    // Loop while the current node is not set to 0 (end of list)
     while (tempNode != 0) {
         // If the next node has the matching bidId
         if (tempNode->next->dataVal.bidId == bidId) {
@@ -164,17 +174,20 @@ void LinkedList::Remove(string bidId) {
  * @param bidId The bid id to search for
  */
 Bid LinkedList::Search(string bidId) {
+    // Initialize temporary variables
     Bid matchedBid;
-    // FIXME (7): Implement search logic
-
     node *tempNode = new node;
+
+    // Set tempNode to the head
     tempNode = this->head;
     while (tempNode->next != 0) {
+        // If the bidId of the current node data value is equal to the search term then return the data value
         if (tempNode->dataVal.bidId == bidId) {
             return tempNode->dataVal;
         }
         tempNode = tempNode->next;
     }
+    // No matched bid id so return the empty bid.
     return matchedBid;
 }
 
