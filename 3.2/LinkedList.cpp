@@ -32,6 +32,12 @@ struct Bid {
     }
 };
 
+struct node
+{
+    Bid dataVal;
+    node *next;
+};
+
 //============================================================================
 // Linked-List class definition
 //============================================================================
@@ -44,8 +50,8 @@ class LinkedList {
 
 private:
     // Internal structure for list entries, housekeeping variables
-    Bid dataVal;
-    LinkedList* nextNodePtr;
+    node *head;
+    node *tail;
 public:
     LinkedList();
     virtual ~LinkedList();
@@ -61,10 +67,8 @@ public:
  * Default constructor
  */
 LinkedList::LinkedList() {
-    
-    this->dataVal = Bid();
-    this->nextNodePtr = new LinkedList;
-    
+    this->head = 0;
+    this->tail = 0;
 }
 
 /**
@@ -78,21 +82,50 @@ LinkedList::~LinkedList() {
  */
 void LinkedList::Append(Bid bid) {
     // FIXME: Implement append logic.
-    
+    // Assign bid data to temp node.
+    //cout << "Creating temp node..." << endl;
+    node *tempNode = new node;
+    // Assign the bid data to the dataVal struct member.
+    //cout << "Setting bid value to temp node dataVal..." << bid.bidId << endl;
+    tempNode->dataVal = bid;
+    // Since this will be the last object in the list, assign the next node as 0
+    //cout << "Setting next node on tempNode to 0..." << endl;
+    tempNode->next = 0;
+
+    // Check if this is the first node being added:
+    if (this->head == 0) {
+        //cout << "Found the first node in the list.   Setting head and tail..." << endl;
+        // It is the first node so change the head node to point to the incoming Bid.
+        this->head = tempNode;
+        this->tail = tempNode;
+    } else {
+        // It is not the first node, so change the tail node to point to this one.
+        //cout << "Not the first node in the list.   Setting the tail..." << endl;
+        this->tail->next = tempNode;
+        this->tail = this->tail->next;
+    }
+
 }
 
 /**
  * Prepend a new bid to the start of the list
  */
 void LinkedList::Prepend(Bid bid) {
-    // FIXME (4): Implement prepend logic
+    // FIXME: Add prepend logic
+    
 }
 
 /**
  * Simple output of all bids in the list
  */
 void LinkedList::PrintList() {
-    // FIXME (5): Implement print logic
+    
+    node *tempNode = new node;
+    tempNode = this->head;
+    while (tempNode->next != 0) {
+        cout << tempNode->dataVal.title << " | " << tempNode->dataVal.amount << " | " << tempNode->dataVal.fund << endl;
+        tempNode = tempNode->next;
+    }
 }
 
 /**
@@ -112,6 +145,15 @@ void LinkedList::Remove(string bidId) {
 Bid LinkedList::Search(string bidId) {
     Bid matchedBid;
     // FIXME (7): Implement search logic
+
+    node *tempNode = new node;
+    tempNode = this->head;
+    while (tempNode->next != 0) {
+        if (tempNode->dataVal.bidId == bidId) {
+            return tempNode->dataVal;
+        }
+        tempNode = tempNode->next;
+    }
     return matchedBid;
 }
 
@@ -120,6 +162,12 @@ Bid LinkedList::Search(string bidId) {
  */
 int LinkedList::Size() {
     int size = 0;
+    node *tempNode = new node;
+    tempNode = this->head;
+    while (tempNode->next != 0) {
+        size++;
+        tempNode = tempNode->next;
+    }
     return size;
 }
 
@@ -230,7 +278,7 @@ int main(int argc, char* argv[]) {
         bidKey = argv[2];
         break;
     default:
-        csvPath = "eBid_Monthly_Sales_Dec_2016.csv";
+        csvPath = "./eBid_Monthly_Sales_Dec_2016.csv";
         bidKey = "98109";
     }
 
