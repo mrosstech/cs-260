@@ -112,7 +112,16 @@ void LinkedList::Append(Bid bid) {
  */
 void LinkedList::Prepend(Bid bid) {
     // FIXME: Add prepend logic
-    
+    node *tempNode = new node;
+    tempNode->dataVal = bid;
+    tempNode->next = 0;
+    if (this->head == 0) {
+        this->head = tempNode;
+        this->tail = tempNode;
+    } else {
+        tempNode->next = this->head;
+        this->head = tempNode;
+    }
 }
 
 /**
@@ -122,7 +131,7 @@ void LinkedList::PrintList() {
     
     node *tempNode = new node;
     tempNode = this->head;
-    while (tempNode->next != 0) {
+    while (tempNode != 0) {
         cout << tempNode->dataVal.title << " | " << tempNode->dataVal.amount << " | " << tempNode->dataVal.fund << endl;
         tempNode = tempNode->next;
     }
@@ -135,6 +144,18 @@ void LinkedList::PrintList() {
  */
 void LinkedList::Remove(string bidId) {
     // FIXME (6): Implement remove logic
+    node *tempNode = new node;
+    tempNode = this->head;
+    while (tempNode != 0) {
+        // If the next node has the matching bidId
+        if (tempNode->next->dataVal.bidId == bidId) {
+            // Change the current node to point to the next->next node to skip the next one.
+            tempNode->next = tempNode->next->next;
+            // Found the bid, so return.
+            return;
+        }
+        tempNode = tempNode->next;
+    }
 }
 
 /**
@@ -303,7 +324,7 @@ int main(int argc, char* argv[]) {
         switch (choice) {
         case 1:
             bid = getBid();
-            bidList.Append(bid);
+            bidList.Prepend(bid);
             displayBid(bid);
 
             break;
