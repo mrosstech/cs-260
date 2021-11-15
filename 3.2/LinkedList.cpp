@@ -198,7 +198,7 @@ int LinkedList::Size() {
     int size = 0;
     node *tempNode = new node;
     tempNode = this->head;
-    while (tempNode->next != 0) {
+    while (tempNode != 0) {
         size++;
         tempNode = tempNode->next;
     }
