@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.json": "jsonc",
-        "string": "cpp"
+        "string": "cpp",
+        "iostream": "cpp"
     }
 }
