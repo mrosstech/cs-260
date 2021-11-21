@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <iostream>
 #include <time.h>
+#include <string.h>
 
 #include "CSVparser.hpp"
 
@@ -121,7 +122,28 @@ vector<Bid> loadBids(string csvPath) {
  * @param end Ending index to partition
  */
 int partition(vector<Bid>& bids, int begin, int end) {
+    // The starting point for the quicksort.   We need to 
+    // partition the vector into high and low partitions.
 
+    // Initialize variables.
+    // Calculate the starting midpoint for the partition
+    int midpoint = begin + (end - begin)/2;
+
+    // Set the low and high positions to the begin and end to start
+    int low = begin;
+    int hight = end;
+
+    // Create a variable to store the 'doneness' of our partition
+    // and initialize to 'false'
+    bool done = false;
+
+    // Loop until we're done with the partition
+    while (!done) {
+        
+    }
+
+
+    return 0;
 }
 
 /**
@@ -134,6 +156,7 @@ int partition(vector<Bid>& bids, int begin, int end) {
  * @param end the ending index to sort on
  */
 void quickSort(vector<Bid>& bids, int begin, int end) {
+
 }
 
 // FIXME (1a): Implement the selection sort logic over bid.title
@@ -147,6 +170,32 @@ void quickSort(vector<Bid>& bids, int begin, int end) {
  *            instance to be sorted
  */
 void selectionSort(vector<Bid>& bids) {
+    // Create and initalize a lowIndex integer.
+    // This represents the index of the lowest value for the inner loop.
+    int lowIndex = 0;
+
+    // We also need a temporary Bid value to store the bid for the swap.
+    Bid tempValue;
+
+    // And finally initialize our loop variables.
+    int i = 0;
+    int j = 0;
+
+    // Outer loop to move from left to right in the bids vector.
+    for (i = 0; i < bids.size() - 1; i++) {
+        lowIndex = i;
+        // Inner loop for comparing the value of the data in the outer loop vector position with the rest of the 
+        // vector data to find the next lowest value.
+        for (j = i+1; j < bids.size(); j++) {
+            if (bids.at(j).title < bids.at(lowIndex).title) {
+                lowIndex = j;
+            }
+        }
+        // Swap the lowest value into the outer loop vector position.
+        tempValue = bids.at(i);
+        bids.at(i) = bids.at(lowIndex);
+        bids.at(lowIndex) = tempValue;
+    }
 }
 
 /**
@@ -220,11 +269,27 @@ int main(int argc, char* argv[]) {
             cout << endl;
 
             break;
+        
+        case 3:
+            ticks = clock();
+            // Sort using the selection sort algorithm
+            selectionSort(bids);
 
-        // FIXME (1b): Invoke the selection sort and report timing results
+            // FIXME (1b): Invoke the selection sort and report timing results
+            ticks = clock() - ticks; // current clock ticks minus starting clock ticks
+            cout << "time: " << ticks << " clock ticks" << endl;
+            cout << "time: " << ticks * 1.0 / CLOCKS_PER_SEC << " seconds" << endl;
 
+
+            break;
+
+        case 4:
+            ticks = clock();
+            quickSort(bids, 0, bids.size()-1);
         // FIXME (2b): Invoke the quick sort and report timing results
-
+            ticks = clock() - ticks; // current clock ticks minus starting clock ticks
+            cout << "time: " << ticks << " clock ticks" << endl;
+            cout << "time: " << ticks * 1.0 / CLOCKS_PER_SEC << " seconds" << endl;
         }
     }
 
