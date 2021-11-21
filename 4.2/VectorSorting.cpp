@@ -126,24 +126,63 @@ int partition(vector<Bid>& bids, int begin, int end) {
     // partition the vector into high and low partitions.
 
     // Initialize variables.
-    // Calculate the starting midpoint for the partition
+    // Calculate the starting midpoint index for the partition and get the value
+    // of the vector at that index.
     int midpoint = begin + (end - begin)/2;
+    Bid pivot = bids.at(midpoint);
+
+    // Create a temporary Bid variable for the swaps
+    Bid tempBid;
 
     // Set the low and high positions to the begin and end to start
     int low = begin;
-    int hight = end;
+    int high = end;
 
     // Create a variable to store the 'doneness' of our partition
     // and initialize to 'false'
     bool done = false;
 
+
+    // DEBUG: cout << "STARTING PARTITION PASS: " << low << ", " << high << ", " << midpoint << endl;
     // Loop until we're done with the partition
     while (!done) {
-        
+
+        // Check the 'low' partition to see if the value at 'low'
+        // is less than or equal to the partition value.   If it 
+        // is then the value at low is in the right partition.   Move
+        // on to the next one and check that.   If it is larger, we need
+        // to check the high side to see if there is a value we can swap.
+        while (bids.at(low).title < pivot.title) {
+            low++;
+        }
+        // Check from the far right of the vector to the pivot to find any
+        // values which are less than the pivot value.
+        while (pivot.title < bids.at(high).title) {
+            high--;
+        }
+        // If we've checked all of the high side and all of the low side
+        // and everything is in the right place, we're done with the
+        // partitioning.
+        if (low >= high) {
+            done = true;
+        } else {
+            // DEBUG: cout << "SWAPPING LOW with HIGH" << endl;
+            // We're not done, so we need to swap the values that are on the wrong sides.
+            tempBid = bids.at(low);
+            bids.at(low) = bids.at(high);
+            bids.at(high) = tempBid;
+            
+            // Decrement high and increment low to move on to the next set of values to be compared
+            low++;
+            high--;
+        }
+
+
     }
 
-
-    return 0;
+    // return the value of the highest index of the low partition
+    // DEBUG: cout << "DONE WITH THIS PARTITION PASS! RETURNING: " << high << endl;
+    return high;
 }
 
 /**
@@ -156,7 +195,29 @@ int partition(vector<Bid>& bids, int begin, int end) {
  * @param end the ending index to sort on
  */
 void quickSort(vector<Bid>& bids, int begin, int end) {
+    // DEBUG: cout << "STARTING NEW QUICKSORT PASS: " << begin << ", " << end << endl;
+    // Initialize variables
+    // Create a midpoint variable to hold the partition
+    // midpoint returned from the partition function.
+    int mid = 0;
 
+    // Check to see if we only have one element.   If so
+    // the section is already sorted.
+    if (begin >= end) {
+        // DEBUG: cout << "ENDING QUICKSORT PASS BECAUSE ALREADY SORTED!" << endl;
+        return;
+    }
+
+    // Otherwise we have some work to do.
+
+    // Get the midpoint from the partition funnction
+    mid = partition(bids, begin, end);
+
+    // Quicksort both sides of the vector recursively
+    quickSort(bids, begin, mid);
+    quickSort(bids, mid+1, end);
+
+    return;
 }
 
 // FIXME (1a): Implement the selection sort logic over bid.title
@@ -290,6 +351,7 @@ int main(int argc, char* argv[]) {
             ticks = clock() - ticks; // current clock ticks minus starting clock ticks
             cout << "time: " << ticks << " clock ticks" << endl;
             cout << "time: " << ticks * 1.0 / CLOCKS_PER_SEC << " seconds" << endl;
+            break;
         }
     }
 
