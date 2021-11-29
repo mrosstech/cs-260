@@ -1,9 +1,9 @@
 //============================================================================
 // Name        : HashTable.cpp
-// Author      : John Watson
+// Author      : Michael Ross
 // Version     : 1.0
 // Copyright   : Copyright © 2017 SNHU COCE
-// Description : Hello World in C++, Ansi-style
+// Description : Hash Table practice
 //============================================================================
 
 #include <algorithm>
@@ -11,8 +11,10 @@
 #include <iostream>
 #include <string> // atoi
 #include <time.h>
+#include <vector>
 
 #include "CSVparser.hpp"
+#include "LinkedList.h"
 
 using namespace std;
 
@@ -26,6 +28,7 @@ const unsigned int DEFAULT_SIZE = 179;
 double strToDouble(string str, char ch);
 
 // define a structure to hold bid information
+/*
 struct Bid {
     string bidId; // unique identifier
     string title;
@@ -35,6 +38,7 @@ struct Bid {
         amount = 0.0;
     }
 };
+*/
 
 //============================================================================
 // Hash Table class definition
@@ -49,7 +53,12 @@ class HashTable {
 private:
     // FIXME (1): Define structures to hold bids
 
+    
     unsigned int hash(int key);
+    // Set the tableSize to the DEFAULT_SIZE constant to start.
+    unsigned int tableSize = DEFAULT_SIZE;
+    vector<LinkedList> table;
+
 
 public:
     HashTable();
@@ -65,6 +74,8 @@ public:
  */
 HashTable::HashTable() {
     // FIXME (2): Initialize the structures used to hold bids
+    // Initialize the table to the default size constant.
+    table.resize(DEFAULT_SIZE);
 }
 
 /**
@@ -72,6 +83,9 @@ HashTable::HashTable() {
  */
 HashTable::~HashTable() {
     // FIXME (3): Implement logic to free storage when class is destroyed
+
+    // Erase the vector to deallocate memory.
+    table.erase(table.begin());
 }
 
 /**
@@ -85,6 +99,9 @@ HashTable::~HashTable() {
  */
 unsigned int HashTable::hash(int key) {
     // FIXME (4): Implement logic to calculate a hash value
+    // The key returned will be the result of the key modulo the table size.
+    // By using the table size as the modulo we can start with enough room for entries in the table.
+    return key % tableSize;
 }
 
 /**
@@ -94,12 +111,28 @@ unsigned int HashTable::hash(int key) {
  */
 void HashTable::Insert(Bid bid) {
     // FIXME (5): Implement logic to insert a bid
+
+    // Calculate the key value to figure out where we want to put this in the vector.
+    unsigned key = hash(stoi(bid.bidId));
+
+    // Append the bid object to the current key using the LinkedList library Append() method.
+    table.at(key).Append(bid);
 }
 
 /**
  * Print all bids
  */
 void HashTable::PrintAll() {
+    // Since we have the PrintList() functionality in our library, we can use that to print a list for each of the valid
+    // keys.   We need to escape from the current for loop if we find an empty key so that we don't print an empty
+    // key slot.
+    for (int i=0; i < DEFAULT_SIZE; i++) {
+        if (table.at(i).Size() == 0) {
+            continue;
+        }
+        cout << "Key " << i << ":" << endl;
+        table.at(i).PrintList();
+    }
     // FIXME (6): Implement logic to print all bids
 }
 
@@ -110,6 +143,17 @@ void HashTable::PrintAll() {
  */
 void HashTable::Remove(string bidId) {
     // FIXME (7): Implement logic to remove a bid
+    cout << "assigned temp key!" << endl;
+    unsigned int tempkey;
+
+    cout << "getting hash of bidId!" << endl;
+    // Get the key ID hash for the given Bid Id
+    tempkey = hash(stoi(bidId));
+    
+    cout << "removing bidId" << endl;
+    // Remove the bid from the linked list at the hash index of the table vector
+    table.at(tempkey).Remove(bidId);
+    cout << "removed bidId" << endl;
 }
 
 /**
@@ -119,8 +163,16 @@ void HashTable::Remove(string bidId) {
  */
 Bid HashTable::Search(string bidId) {
     Bid bid;
+    unsigned int tempkey;
 
     // FIXME (8): Implement logic to search for and return a bid
+
+    // Get the hash for the bid ID that we're searching for:
+    tempkey = hash(stoi(bidId));
+
+    // Search the linked list at the vector location we've found from the hash
+    // the LinkedList library will return an empty bid if the bid is not found.
+    bid = table.at(tempkey).Search(bidId);
 
     return bid;
 }
@@ -147,21 +199,24 @@ void displayBid(Bid bid) {
  * @return a container holding all the bids read
  */
 void loadBids(string csvPath, HashTable* hashTable) {
+    unsigned int i;
     cout << "Loading CSV file " << csvPath << endl;
 
     // initialize the CSV Parser using the given path
     csv::Parser file = csv::Parser(csvPath);
 
     // read and display header row - optional
+
     vector<string> header = file.getHeader();
+    /* MR **************  Removed header row display as it does not display properly
     for (auto const& c : header) {
         cout << c << " | ";
     }
     cout << "" << endl;
-
+    * ******************/
     try {
         // loop to read rows of a CSV file
-        for (unsigned int i = 0; i < file.rowCount(); i++) {
+        for (i = 0; i < file.rowCount(); i++) {
 
             // Create a data structure and add to the collection of bids
             Bid bid;
@@ -178,6 +233,7 @@ void loadBids(string csvPath, HashTable* hashTable) {
     } catch (csv::Error &e) {
         std::cerr << e.what() << std::endl;
     }
+    cout << "" << i << " bids read" << endl;
 }
 
 /**
