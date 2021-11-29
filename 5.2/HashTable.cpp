@@ -143,17 +143,17 @@ void HashTable::PrintAll() {
  */
 void HashTable::Remove(string bidId) {
     // FIXME (7): Implement logic to remove a bid
-    cout << "assigned temp key!" << endl;
+
     unsigned int tempkey;
 
-    cout << "getting hash of bidId!" << endl;
+
     // Get the key ID hash for the given Bid Id
     tempkey = hash(stoi(bidId));
     
-    cout << "removing bidId" << endl;
+
     // Remove the bid from the linked list at the hash index of the table vector
     table.at(tempkey).Remove(bidId);
-    cout << "removed bidId" << endl;
+
 }
 
 /**
