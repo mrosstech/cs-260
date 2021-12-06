@@ -1,9 +1,9 @@
 //============================================================================
 // Name        : BinarySearchTree.cpp
-// Author      : JYour name
+// Author      : Michael Ross
 // Version     : 1.0
 // Copyright   : Copyright © 2017 SNHU COCE
-// Description : Hello World in C++, Ansi-style
+// Description : Binary Search Tree Assignment
 //============================================================================
 
 #include <iostream>
@@ -42,11 +42,14 @@ struct Node {
     Node* right = 0;
     Bid dataVal;
 
+    // Added default constructor to Node()
     Node() {
         left = 0;
         right = 0;
     }
 
+    // Added overloaded constructor to Node() for 
+    // initializing with a bid given.
     Node(Bid myBid) : Node() {
         this->dataVal = myBid;
     }
@@ -67,11 +70,11 @@ private:
 
     void addNode(Node* node, Bid bid);
     void inOrder(Node* node);
-    int size(Node* node);
     Node* removeNode(Node* node, string bidId);
-    // Added method to search for a node by BidId and return that node.  This will help with 
-    // the recursive remove algorithm.
-    Node* nodeSearch(string bidId);
+    // Helper function to find the minimum value node on a particular tree
+    // Used in the removeNode recursive function
+    // Found at:  https://www.geeksforgeeks.org/binary-search-tree-set-2-delete/
+    Node* minValueNode(Node* node);
 
 public:
     BinarySearchTree();
@@ -79,6 +82,9 @@ public:
     void InOrder();
     void Insert(Bid bid);
     void Remove(string bidId);
+    // Added a size function to get the number of entries read to
+    // display properly
+    int size(Node* node);
     int size();
     Bid Search(string bidId);
 };
@@ -88,6 +94,7 @@ public:
  */
 BinarySearchTree::BinarySearchTree() {
     // initialize housekeeping variables
+    // Setting the root to 0 on initialization.
     root = 0;
 }
 
@@ -102,6 +109,8 @@ BinarySearchTree::~BinarySearchTree() {
  * Traverse the tree in order
  */
 void BinarySearchTree::InOrder() {
+    // Call the recursive inOrder method to print the tree
+    // in order from the root.
     this->inOrder(this->root);
 }
 /**
@@ -110,13 +119,70 @@ void BinarySearchTree::InOrder() {
 void BinarySearchTree::Insert(Bid bid) {
     // FIXME (2a) Implement inserting a bid into the tree
     
-    // temporary node variable for traversing the tree
+    // If the root is zero we're inserting the first bid so
+    // just set the root to the new Node with the bid as
+    // data value.
     if (root == 0) {
         root = new Node(bid);
     } else {
+        // Otherwise recursively call the addNode method to insert
+        // the bid in the right location.
         this->addNode(root, bid);
     }
     
+}
+
+/**
+ * Remove a node
+ * 
+ */
+Node* BinarySearchTree::removeNode(Node* node, string bidId) {
+    // If we're given an empty node, just return that node back.
+    if (node == 0) {
+        return node;
+    }
+
+    // bidId is less than the bidId of the node, so it must be to the left
+    // run a recursive delete on the left branch.
+    if (bidId < node->dataVal.bidId) {
+        node->left = removeNode(node->left, bidId);
+    } else if (bidId > node->dataVal.bidId) {
+        // bidId is greater than the node bidId so it must be to the right
+        // run a recursive delete on the right branch
+        node->right = removeNode(node->right, bidId);
+    } else {
+        // if the bidId searched and the bidId of this node are equal then remove the 
+        // node
+
+        // First search for the various possible combinations of children:
+        // No children
+        if (node->left == 0 and node->right == 0) {
+            return 0;
+        } else if (node->left == 0) {
+            // Only right node
+            Node* tempNode = node->right;
+            free(node);
+            return tempNode;
+        } else if (node->right == 0) {
+            // Only left node
+            Node* tempNode = node->left;
+            free(node);
+            return tempNode;
+        }
+        // Two children
+
+        // Get the minimum value node on the right subtree.
+        Node* tempNode = minValueNode(node->right);
+        // Set the value of this node to the minimum value returned from 
+        // the method above.
+        node->dataVal = tempNode->dataVal;
+
+        // run the recursive removeNode on the right subtree to remove the node we just 
+        // replaced this node with.
+        node->right = removeNode(node->right, tempNode->dataVal.bidId);
+    }
+    return node;
+
 }
 
 /**
@@ -124,67 +190,8 @@ void BinarySearchTree::Insert(Bid bid) {
  */
 void BinarySearchTree::Remove(string bidId) {
     // FIXME (4a) Implement removing a bid from the tree
-    Node* cur;
-    Node* par = 0;
-    Node* suc;
-
-    cur = this->root;
-    while (cur != 0) { // Search for node
-        if (cur->dataVal.bidId == bidId) { // Node found 
-            if (cur->left == 0 && cur->right == 0) {         // Remove leaf
-                if (par == 0) { // Node is root
-                    this->root = 0;
-                }
-                else if (par->left == cur) {
-                    par->left = 0;
-                }
-                else {
-                    par->right = 0;
-                }
-            }
-            else if (cur->left != 0 && cur->right == 0) {    // Remove node with only left child
-                if (par == 0) { // Node is root
-                    this->root = cur->left;
-                }
-                else if (par->left == cur) {
-                    par->left = cur->left;
-                }
-                else {
-                    par->right = cur->left;
-                }
-            }
-            else if (cur->left == 0 && cur->right != 0) {    // Remove node with only right child
-                if (par == 0) { // Node is root
-                    this->root = cur->right;
-                }
-                else if (par->left == cur) {
-                    par->left = cur->right;
-                }
-                else {
-                    par->right = cur->right;
-                }
-            }
-            else {                                  // Remove node with two children
-                // Find successor (leftmost child of right subtree)
-                suc = cur->right;
-                while (suc->left != 0) {
-                    suc = suc->left;
-                    cur = suc;                     // Copy successor to current node
-                    this->Remove(cur->right, bidId);     // Remove successor from right subtree
-                }
-            }
-            return; // Node found and removed
-        }
-        else if (cur->key < key) {// Search right
-            par = cur;
-            cur = cur->right;
-        }
-        else {                     // Search left
-            par = cur;
-            cur = cur->left;
-        }
-    }
-    return; // Node not found
+    // Call the recursive removeNode method starting at the root of the tree.
+    this->removeNode(this->root, bidId);
 }
 
 /**
@@ -211,26 +218,6 @@ Bid BinarySearchTree::Search(string bidId) {
     return bid;
 }
 
-Node* BinarySearchTree::Search(string bidId) {
-    // FIXME (3) Implement searching the tree for a bid
-	// Temp node for traversing the tree
-    Node* cur;
-    // Create an empty bid to return in case we don't find the right one.
-    Bid bid;
-    cur = this->root;
-    while (cur != 0) {
-        if (bidId == cur->dataVal.bidId) {
-            // Return the bid value at cur because we found the right bid.
-            return cur;
-        } else if (bidId < cur->dataVal.bidId) {
-            cur = cur->left;
-        } else {
-            cur = cur->right;
-        }
-    }
-    // Return empty bid because we didn't find anything
-    return 0;
-}
 
 /**
  * Add a bid to some node (recursive)
@@ -278,6 +265,17 @@ int BinarySearchTree::size(Node* node) {
 int BinarySearchTree::size() {
     return this->size(root);
 }
+
+// Helper function to find the inorder successor in the given node tree.
+Node* BinarySearchTree::minValueNode(Node* node) {
+    Node* cur = node;
+    while (cur and cur->left != 0) {
+        cur = cur->left;
+    }
+    return cur;
+}
+
+
 //============================================================================
 // Static methods used for testing
 //============================================================================
